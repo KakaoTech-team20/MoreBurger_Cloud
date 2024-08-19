@@ -47,7 +47,10 @@ pipeline {
                             docker pull ${ECR_REPO}:latest
                             docker stop nginx_server || true
                             docker rm nginx_server || true
-                            docker run -d --name nginx_server -p 443:443 ${ECR_REPO}:latest
+                            docker run -d --name nginx_server -p 443:443 \
+                                -v ~/fullchain.pem:/etc/nginx/ssl/fullchain.pem \
+                                -v ~/privkey.pem:/etc/nginx/ssl/privkey.pem \
+                                ${ECR_REPO}:latest
                             docker system prune -f 
                             docker image prune -f
                             '
