@@ -25,8 +25,20 @@ WORKDIR /app
 # 빌드 단계에서 설치한 Python 패키지와 코드를 복사
 COPY --from=build /app /app
 
-# 애플리케이션 포트를 외부에 노출
-EXPOSE 8000
+# SSL 인증서와 프라이빗 키를 이미지로 복사
+COPY privkey.pem /etc/ssl/private/privkey.pem
+COPY fullchain.pem /etc/ssl/certs/fullchain.pem
 
-# Uvicorn 서버를 시작
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Nginx 설치 및 설정 파일 복사
+RUN apt-get update && apt-get install -y nginx && apt-get clean
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Nginx 설정 파일 수정
+RUN sed -i 's|ssl_certificate /etc/nginx/ssl/fullchain.pem;|ssl_certificate /etc/ssl/certs/fullchain.pem;|' /etc/nginx/nginx.conf \
+    && sed -i 's|ssl_certificate_key /etc/nginx/ssl/privkey.pem;|ssl_certificate_key /etc/ssl/private/privkey.pem;|' /etc/nginx/nginx.conf
+
+# 애플리케이션 포트를 외부에 노출
+EXPOSE 443
+
+# Nginx를 시작
+CMD ["nginx", "-g", "daemon off;"]
