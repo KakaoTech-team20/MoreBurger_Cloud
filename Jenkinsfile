@@ -18,8 +18,8 @@ pipeline {
         stage('Prepare SSL Files') {
             steps {
                 // SSL 인증서 파일들을 작업 디렉토리로 복사
-                sh 'cp ~/privkey.pem .'
-                sh 'cp ~/fullchain.pem .'
+                sh 'cp /home/ec2-user/privkey.pem .'
+                sh 'cp /home/ec2-user/fullchain.pem .'
             }
         }
 
