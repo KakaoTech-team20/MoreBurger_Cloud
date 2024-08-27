@@ -15,13 +15,6 @@ pipeline {
                 git branch: 'main', url: "https://github.com/${REPO}.git", credentialsId: 'Github_access_key'
             }
         }
-        stage('Prepare SSL Files') {
-            steps {
-                // SSL 인증서 파일들을 작업 디렉토리로 복사
-                sh 'cp /home/ec2-user/privkey.pem .'
-                sh 'cp /home/ec2-user/fullchain.pem .'
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
@@ -42,6 +35,7 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy to EC2') {
             steps {
                 withCredentials([string(credentialsId: 'EC2_SSH_nginx', variable: 'EC2_INSTANCE_IP')]) {
