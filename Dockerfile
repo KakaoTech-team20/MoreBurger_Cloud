@@ -1,36 +1,20 @@
-# 1단계: 빌드 단계
-FROM python:3.10-slim AS build
+# 베이스 이미지로 Nginx를 사용
+FROM nginx:alpine
 
 # 작업 디렉토리 설정
-WORKDIR /app
+WORKDIR /usr/share/nginx/html
 
 # 필요한 패키지 설치
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache git
 
-# 깃 레포지토리에서 프로젝트를 복사
-RUN git clone https://github.com/KakaoTech-team20/MoreBurger_AI.git .
+# GitHub 리포지토리에서 콘텐츠를 클론
+RUN git clone https://github.com/KakaoTech-team20/MoreBurger_Cloud.git .
 
-# Python 패키지를 설치
-RUN pip install --no-cache-dir -r requirements.txt
-
-# 2단계: 최종 이미지 단계
-FROM python:3.10-slim
-
-# 작업 디렉토리 설정
-WORKDIR /app
-
-# 빌드 단계에서 설치한 Python 패키지와 코드를 복사
-COPY --from=build /app /app
-
-# Nginx 설치 및 설정 파일 복사
-RUN apt-get update && apt-get install -y nginx && apt-get clean
+# Nginx 기본 설정 파일을 덮어씌움
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# 애플리케이션 포트를 외부에 노출
+# 443 포트를 외부에 노출
 EXPOSE 443
 
-# Nginx 서버를 시작
+# Nginx 실행
 CMD ["nginx", "-g", "daemon off;"]
