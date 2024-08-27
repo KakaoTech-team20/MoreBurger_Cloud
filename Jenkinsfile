@@ -15,6 +15,13 @@ pipeline {
                 git branch: 'main', url: "https://github.com/${REPO}.git", credentialsId: 'Github_access_key'
             }
         }
+        stage('Prepare SSL Files') {
+            steps {
+                // SSL 인증서 파일들을 작업 디렉토리로 복사
+                sh 'cp ~/privkey.pem .'
+                sh 'cp ~/fullchain.pem .'
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
